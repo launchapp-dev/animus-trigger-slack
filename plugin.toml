@@ -1,0 +1,30 @@
+schema = "animus.plugin.v1"
+name = "animus-trigger-slack"
+version = "0.1.0"
+plugin_kind = "trigger_backend"
+description = "Slack mentions + DMs trigger backend"
+
+[capabilities]
+streaming = true
+progress = false
+cancellation = false
+
+[binary]
+default = "animus-trigger-slack"
+
+[[env]]
+key = "SLACK_APP_TOKEN"
+description = "Socket Mode app-level token (xapp-...). See https://api.slack.com/apps -> Basic Information."
+required = true
+sensitive = true
+
+[[env]]
+key = "SLACK_BOT_TOKEN"
+description = "Bot user OAuth token (xoxb-...)."
+required = true
+sensitive = true
+
+[[env]]
+key = "SLACK_FILTER_CHANNELS"
+description = "Comma-separated channel IDs to listen on (default: all)."
+required = false

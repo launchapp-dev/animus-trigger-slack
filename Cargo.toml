@@ -1,0 +1,45 @@
+[package]
+name = "animus-trigger-slack"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Slack mentions + DMs trigger backend for Animus"
+repository = "https://github.com/launchapp-dev/animus-trigger-slack"
+homepage = "https://github.com/launchapp-dev/animus-cli"
+readme = "README.md"
+default-run = "animus-trigger-slack"
+
+[lib]
+name = "animus_trigger_slack"
+path = "src/lib.rs"
+
+[[bin]]
+name = "animus-trigger-slack"
+path = "src/main.rs"
+
+[dependencies]
+animus-plugin-protocol  = { git = "https://github.com/launchapp-dev/animus-protocol", branch = "main" }
+animus-trigger-protocol = { git = "https://github.com/launchapp-dev/animus-protocol", branch = "main" }
+animus-plugin-runtime   = { git = "https://github.com/launchapp-dev/animus-protocol", branch = "main" }
+
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+tokio-tungstenite = { version = "0.24", features = ["connect", "rustls-tls-webpki-roots"], default-features = false }
+
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "io-util", "sync", "time", "signal", "net"] }
+tokio-stream = "0.1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+futures = "0.3"
+futures-util = "0.3"
+
+async-trait = "0.1"
+anyhow = "1"
+thiserror = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[dev-dependencies]
+mockito = "1"
+tokio = { version = "1", features = ["test-util", "macros", "rt-multi-thread"] }
