@@ -1,6 +1,6 @@
 [package]
 name = "animus-trigger-slack"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT"
 description = "Slack mentions + DMs trigger backend for Animus"
@@ -18,9 +18,9 @@ name = "animus-trigger-slack"
 path = "src/main.rs"
 
 [dependencies]
-animus-plugin-protocol  = { git = "https://github.com/launchapp-dev/animus-protocol", branch = "main" }
-animus-trigger-protocol = { git = "https://github.com/launchapp-dev/animus-protocol", branch = "main" }
-animus-plugin-runtime   = { git = "https://github.com/launchapp-dev/animus-protocol", branch = "main" }
+animus-plugin-protocol  = { git = "https://github.com/launchapp-dev/animus-protocol", tag = "v0.1.4" }
+animus-trigger-protocol = { git = "https://github.com/launchapp-dev/animus-protocol", tag = "v0.1.4" }
+animus-plugin-runtime   = { git = "https://github.com/launchapp-dev/animus-protocol", tag = "v0.1.4" }
 
 reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
 tokio-tungstenite = { version = "0.24", features = ["connect", "rustls-tls-webpki-roots"], default-features = false }
