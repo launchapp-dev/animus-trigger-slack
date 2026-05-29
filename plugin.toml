@@ -1,13 +1,24 @@
 schema = "animus.plugin.v1"
 name = "animus-trigger-slack"
-version = "0.1.0"
+version = "0.2.0"
 plugin_kind = "trigger_backend"
-description = "Slack mentions + DMs trigger backend"
+description = "Slack mentions + DMs trigger backend with outbound chat.postMessage / postEphemeral / send_dm RPC methods"
 
 [capabilities]
 streaming = true
 progress = false
 cancellation = false
+
+# Inbound trigger methods (v0.1.x surface) + outbound Slack Web API methods (new in v0.2.0).
+methods = [
+    "trigger/watch",
+    "trigger/schema",
+    "trigger/ack",
+    "health/check",
+    "slack/chat_post_message",
+    "slack/chat_post_ephemeral",
+    "slack/send_dm",
+]
 
 [binary]
 default = "animus-trigger-slack"
@@ -20,11 +31,16 @@ sensitive = true
 
 [[env]]
 key = "SLACK_BOT_TOKEN"
-description = "Bot user OAuth token (xoxb-...)."
+description = "Bot user OAuth token (xoxb-...). Required for both inbound DMs and outbound chat methods."
 required = true
 sensitive = true
 
 [[env]]
 key = "SLACK_FILTER_CHANNELS"
 description = "Comma-separated channel IDs to listen on (default: all)."
+required = false
+
+[[env]]
+key = "SLACK_API_BASE"
+description = "Override the Slack Web API base URL (defaults to https://slack.com/api). Tests point this at a mock server."
 required = false
