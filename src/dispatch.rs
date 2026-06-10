@@ -15,9 +15,7 @@
 //! `trigger/event` notifications.
 
 use std::io::IsTerminal;
-use std::pin::Pin;
 use std::sync::Arc;
-use std::task::{Context, Poll};
 
 use animus_plugin_protocol::{
     error_codes, HealthStatus, InitializeResult, PluginCapabilities, PluginInfo, RpcError,
@@ -28,7 +26,6 @@ use animus_trigger_protocol::{
     METHOD_TRIGGER_WATCH, NOTIFICATION_TRIGGER_EVENT,
 };
 use anyhow::Result;
-use futures::Stream;
 use serde::Deserialize;
 use serde_json::{json, Value};
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader, Stdout};
@@ -263,9 +260,11 @@ async fn drive_trigger_stream(
     mut stream: animus_trigger_protocol::TriggerStream,
     stdout: Arc<Mutex<Stdout>>,
 ) {
-    std::future::poll_fn(|cx: &mut Context<'_>| loop {
-        match Pin::new(&mut stream).poll_next(cx) {
-            Poll::Ready(Some(Ok(event))) => {
+    use futures::StreamExt;
+
+    while let Some(item) = stream.next().await {
+        match item {
+            Ok(event) => {
                 let event_value = match serde_json::to_value(&event) {
                     Ok(value) => value,
                     Err(_) => continue,
@@ -277,12 +276,9 @@ async fn drive_trigger_stream(
                 payload.insert("event".to_string(), event_value);
                 let notification =
                     RpcNotification::new(NOTIFICATION_TRIGGER_EVENT, Some(Value::Object(payload)));
-                let stdout = stdout.clone();
-                tokio::spawn(async move {
-                    write_notification(&stdout, &notification).await;
-                });
+                write_notification(&stdout, &notification).await;
             }
-            Poll::Ready(Some(Err(error))) => {
+            Err(error) => {
                 let rpc_error: RpcError = error.into();
                 let error_value = match serde_json::to_value(&rpc_error) {
                     Ok(value) => value,
@@ -295,17 +291,11 @@ async fn drive_trigger_stream(
                 payload.insert("error".to_string(), error_value);
                 let notification =
                     RpcNotification::new(NOTIFICATION_TRIGGER_EVENT, Some(Value::Object(payload)));
-                let stdout = stdout.clone();
-                tokio::spawn(async move {
-                    write_notification(&stdout, &notification).await;
-                });
-                return Poll::Ready(());
+                write_notification(&stdout, &notification).await;
+                return;
             }
-            Poll::Ready(None) => return Poll::Ready(()),
-            Poll::Pending => return Poll::Pending,
         }
-    })
-    .await;
+    }
 }
 
 async fn read_frame<R>(reader: &mut R) -> Result<Option<RpcRequest>>
